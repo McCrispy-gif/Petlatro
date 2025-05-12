@@ -1,0 +1,14 @@
+{
+	"id": "petlatro",
+	"name": "Petlatro",
+	"display_name": "Petlatro",
+	"author": ["Carter"],
+	"description": "Adding pets as new cards, they are overpowered and meant to be played with cryptid",
+	"prefix": "pet",
+	"main_file": "petlatro.lua",
+	"priority": 50,
+	"badge_colour": "ffd1dc",
+	"badge_text_colour": "662c39",
+	"version": "0.0.1",
+	"dependencies": [ "Steamodded","Lovely", "Tailsman" ]
+}
