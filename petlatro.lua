@@ -17,4 +17,3 @@ SMODS.Atlas({
 })
 
 assert(SMODS.load_file("Items/jokers.lua"))()
-assert(SMODS.load_file("Lib/Utility.lua"))()

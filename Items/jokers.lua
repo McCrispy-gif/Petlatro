@@ -1,7 +1,10 @@
-SMODS.Joker{
+SMODS.Joker{     -- Benzo code
     key = "Benzo",
     pos = {x = 0, y = 0},
     rarity = 4,
+    perishable_compat = false,
+    blueprint_compat = true,
+    eternal = true,
     atlas = "PIMG",
     config = {
          extra ={
@@ -14,18 +17,19 @@ SMODS.Joker{
     loc_txt = {
         name = "Benzo",
         text = {
-            "When {C:attention}Blind{} is selected jokers to the left and right are {C:red,E:2}destroyed{}",
-            "gains {C:attention}one-tenth{} of the jokers's combined {C:attention}$ value{} ",
+            "When {C:attention}Shop ends{} jokers to the left and right are {C:red,E:2}destroyed{}",
+            "and{C:attention}25%{} of the jokers's combined {C:attention}$ value{} ",
             "are added to{X:mult,C:white}xMult{}",
-            "and {C:attention}one-fourth{} is added to {X:mult,C:white}Mult{}",
+            "and {C:attention}50%{} is added to {X:mult,C:white}Mult{}",
             "Current {C:attention}xMult{}:{C:xmult}#1#{}",
             "{C:inactive}Triggers on end of shop{}",
+            "C:attention}Eternal{}"
         }
     },
     loc_vars = function (self, info_queue, center)
         return {
              vars = { 
-                string.format("%.1f", center.ability.extra.xmult),
+                string.format("%.2f", center.ability.extra.xmult),
                 string.format("%.2f", center.ability.extra.mult)
              }
         }
@@ -53,7 +57,7 @@ SMODS.Joker{
         local total_cost = 0
         local to_destroy = {}
 
-        if index then
+        if index then -- check if card is present and what is next to it
             local left = G.jokers[index - 1]
             local right = G.jokers[index + 1]
             if left and left.ability and not left.ability.eternal then
@@ -65,7 +69,7 @@ SMODS.Joker{
                 total_cost = total_cost + right.cost
             end
         end
-        if #to_destroy > 0 then
+        if #to_destroy > 0 then -- breaks other cards if they are adjacent
             for _, c in ipairs(to_destroy) do
                 G.jokers:remove_card(c)
                 c:start_dissolve(nil, "slice")
@@ -73,13 +77,13 @@ SMODS.Joker{
             end
             play_sound("cat")
 
-            local xmult = total_cost * 0.1
+            local xmult = total_cost * 0.25  -- calculates new values 
             card.ability.extra.xmult = card.ability.extra.xmult + xmult
-            local mult = total_cost * 0.25
+            local mult = total_cost * 0.5
             card.ability.extra.mult = card.ability.extra.mult + mult
             card.ability.extra.triggered = true
 
-            G.E_MANAGER:add_event(Event({
+            G.E_MANAGER:add_event(Event({      --- shows the text of updated values
                 func = function()
                     attention_text({
                         text = "+" .. string.format("%.2f", xmult) .. "x mult\n"
@@ -94,4 +98,81 @@ SMODS.Joker{
             }))
         end
     end,
+}
+
+SMODS.joker{     -- Tinkerbelle code
+    key = "Tinkerbelle",
+    pos = {x = 1, y = 0},
+    rarity = 4,
+    atlas = "PIMG",
+    config = {
+        extra = {
+            credits = 50,
+            mult = 1.0,
+        }
+    },
+    cost = 50,
+    loc_txt = {
+        name = "Tinkerbelle",
+        text = {
+            "When {C:attention}Blind{} is selected, {C:red}ALL{} consumables are destroyed",
+            "and 2.5x the amount of cards are added to {C:attention}mult{} and 5x to {C:attention}credits{}",
+            "Current {C:attention}Mult{}:{C:mult,C:white}#2#{}",
+            "Current {C:attention}Credits{}:{C:credits,C:white}#1#{}",
+            "{C:attention}Eternal{}"
+        }
+    },
+    loc_vars = function (self, info_queue, center)
+        return {
+            vars = {
+                string.format("%.2f", center.ability.extra.mult),
+                string.format("%.2f", center.ability.extra.credits)
+            }
+        }
+    end,
+    calculate = function (self, card, context)
+        if context.cardarea == G.jokers and context.joker_main then
+            return {
+                credits = card.ability.extra.credits,
+                mult = card.ability.extra.mult
+            }
+        end
+    end,
+    on_blind_start = function (self, card)
+        local total_cards = 0
+        local to_destroy = {}
+        for i, c in ipairs(G.consumables) do
+            if c.ability and not c.ability.eternal then
+                table.insert(to_destroy, c)
+                total_cards = total_cards + 1
+            end
+        end
+        if #to_destroy >0 then 
+            for _, c in ipairs(to_destroy) do
+                G.consumables:remove_card(c)
+                c:start_dissolve(nil, "slice")
+            end
+            play_sound("cat")
+
+            local_mult = total_cards * 2.5
+            local_credits = total_cards * 5
+            card.ability.extra.mult = card.ability.extra.mult + local_mult
+            card.ability.extra.credits = card.ability.extra.credits + local_credits
+            card.ability.extra.triggered = true
+            G.E_MANAGER:add_event(Event({
+                func = function()
+                    attention_text({
+                        text = "+" .. string.format("%.2f", local_mult) .. "x mult\n"
+                             .. "+" .. string.format("%.2f", local_credits) .. " credits",
+                        scale = 1.2,
+                        hold = 1.5,
+                        major = true,
+                        color = G.C.Mult
+                    }, card)
+                    return true
+                end
+            }))
+        end
+    end
+
 }
