@@ -104,7 +104,7 @@ SMODS.Joker{     -- Benzo code, breaks adjacent jokers gains mult and xmult
 
 
  -- Tinkerbelle code, breaks all consumables and adds to mult and credits
-SMODS.joker{ 
+SMODS.Joker{ 
     key = "Tinkerbelle",
     pos = {x = 1, y = 0},
     rarity = "cry_epic",
@@ -112,7 +112,7 @@ SMODS.joker{
     config = {
         extra = {
             credits = 50,
-            mult = 1.0,
+            e_mult = 1.0,
             rounds_got = 0,
         }
     },
@@ -187,7 +187,7 @@ SMODS.joker{
 }
 
 
-SMODS.joker{  --- Sage code, gains xmult based on the amount of tarot cards present in the consumables slot
+SMODS.Joker{  --- Sage code, gains xmult based on the amount of tarot cards present in the consumables slot
     key = "Sage",
     pos = {x = 2, y = 0},
     rarity = "cry_epic",
